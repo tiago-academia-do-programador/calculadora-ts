@@ -1,6 +1,6 @@
-
 import { Calculadora } from "./calculadora.js";
 import { Calculo } from "./calculo.type.js";
+import { RepositorioLocalStorage } from "./repositorios/repositorioLocalStorage.js";
 
 // Data Binding
 const txtPrimeiroNumero = document.getElementById("primeiroNumero") as HTMLInputElement;
@@ -8,10 +8,14 @@ const txtSegundoNumero = document.getElementById("segundoNumero") as HTMLInputEl
 const selectOperador = document.getElementById("operador") as HTMLSelectElement;
 
 const btnCalcular = document.getElementById("btnCalcular") as HTMLButtonElement;
+const btnLimpar = document.getElementById("btnLimpar") as HTMLButtonElement;
 const txtResultado = document.getElementById("txtResultado") as HTMLHeadingElement;
 const divHistorico = document.getElementById("historico") as HTMLDivElement;
 
 const calculadora = new Calculadora();
+const repositorioLocalStorage = new RepositorioLocalStorage();
+
+atualizarHistorico();
 
 // instanciando classe
 function calcular(): void {
@@ -24,26 +28,32 @@ function calcular(): void {
 
   const resultado = calculadora.calcular(calculo);
 
-  if (calculadora.historicoOperacoes.length === 0) {
-    divHistorico.style.display = "none";
-  } else {
-    limparOperacoes();
-    exibirHistorico();
-  }
+  repositorioLocalStorage.inserir(calculadora.historicoOperacoes);
+
+  atualizarHistorico();
 
   txtResultado.innerText = "O resultado é: " + resultado;
 }
 
-function exibirHistorico() {
-  divHistorico.classList.remove("d-none");
+function preencherHistorico(operacao: string) {
+  const txtOperacao = document.createElement("h5") as HTMLHeadingElement;
+
+  txtOperacao.className = "alert alert-primary";
+  txtOperacao.innerText = operacao;
+
+  divHistorico.appendChild(txtOperacao);
+}
+
+function atualizarHistorico() {
+  limparOperacoes();
+
+  calculadora.historicoOperacoes = repositorioLocalStorage.selecionarTodos();
+
+  if (calculadora.historicoOperacoes.length > 0)
+    divHistorico.classList.remove("d-none");
 
   calculadora.historicoOperacoes.forEach((operacao: string) => {
-    const txtOperacao = document.createElement("h5") as HTMLHeadingElement;
-
-    txtOperacao.className = "alert alert-primary";
-    txtOperacao.innerText = operacao;
-
-    divHistorico.appendChild(txtOperacao);
+    preencherHistorico(operacao);
   });
 }
 
@@ -51,6 +61,14 @@ function limparOperacoes() {
   while (divHistorico.firstChild) {
     divHistorico.removeChild(divHistorico.firstChild);
   }
+
+  divHistorico.classList.add("d-none");
 }
 
 btnCalcular.addEventListener("click", calcular);
+
+btnLimpar.addEventListener("click", () => {
+  repositorioLocalStorage.excluir();
+
+  atualizarHistorico();
+})
