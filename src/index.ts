@@ -1,3 +1,4 @@
+
 import { Calculadora } from "./calculadora.js";
 import { Calculo } from "./calculo.type.js";
 
@@ -34,12 +35,12 @@ function calcular(): void {
 }
 
 function exibirHistorico() {
-  divHistorico.style.display = "flex";
+  divHistorico.classList.remove("d-none");
 
   calculadora.historicoOperacoes.forEach((operacao: string) => {
-    const txtOperacao = document.createElement("h3") as HTMLHeadingElement;
+    const txtOperacao = document.createElement("h5") as HTMLHeadingElement;
 
-    txtOperacao.className = "card-historico";
+    txtOperacao.className = "alert alert-primary";
     txtOperacao.innerText = operacao;
 
     divHistorico.appendChild(txtOperacao);
