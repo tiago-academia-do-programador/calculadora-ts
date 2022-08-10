@@ -1,1 +1,6 @@
+# ignora arquivos de build e as bibliotecas do npm
 /dist
+/node_modules
+
+# ignora todos os arquivos .js
+*.js
